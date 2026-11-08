@@ -419,7 +419,8 @@ async function guardarAvisos() {
 
 /* ═══════════════ NOMEOLVIDES ═══════════════ */
 const NM_TIPOS = { cumple:{ic:"🎂", t:"Cumpleaños"}, boda:{ic:"💍", t:"Aniversario de boda"},
-                   ordenacion:{ic:"✝️", t:"Aniversario de ordenación"}, otro:{ic:"⭐", t:"Otra fecha"} };
+                   ordenacion:{ic:"✝️", t:"Aniversario de ordenación"}, fallecimiento:{ic:"🕯️", t:"Aniversario de fallecimiento"},
+                   otro:{ic:"⭐", t:"Otra fecha"} };
 function flor(color1 = "#6FA8DC", color2 = "#9CC3EA") {
   const p = [0, 72, 144, 216, 288].map((a, i) => { const r = (a - 90) * Math.PI / 180;
     return `<circle cx="${(50 + 23 * Math.cos(r)).toFixed(1)}" cy="${(50 + 23 * Math.sin(r)).toFixed(1)}" r="20" fill="${i % 2 ? color2 : color1}"/>`; }).join("");
@@ -438,6 +439,7 @@ function nmFrase(e, anos) {
     case "cumple": return { t: `Cumple ${e.nombre}`, s: n ? `cumple ${n} año${n > 1 ? "s" : ""}` : "cumpleaños" };
     case "boda": return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""} de casados` : "aniversario de boda" };
     case "ordenacion": return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""} de ordenación` : "aniversario de ordenación" };
+    case "fallecimiento": return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""} de su fallecimiento` : "aniversario de su fallecimiento" };
     default: return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""}` : (e.nota || "") };
   }
 }
@@ -536,6 +538,7 @@ function nmTipoDe(t) {
   if (!t || t.startsWith("cum")) return "cumple";
   if (t.startsWith("bod") || t.startsWith("matr") || t.startsWith("cas")) return "boda";
   if (t.startsWith("ord")) return "ordenacion";
+  if (t.startsWith("fall") || t.startsWith("defun") || t.startsWith("muer")) return "fallecimiento";
   return "otro";
 }
 function nmParsear(texto) {
@@ -554,7 +557,7 @@ function nmParsear(texto) {
 function nmImportar() {
   abrirSheet(`<h3>Pegar una lista</h3>
     <p class="sub">Una fecha por línea: <b>fecha; nombre; tipo</b> (y si quieres, <b>; nota</b>). Sirve también copiar y pegar desde Excel con esas columnas.</p>
-    <p class="pista" style="margin:0">Ejemplos:<br>15/03/2018; Pablo; cumple; hijo de Javi<br>22/06/2001; Javi y Ana; boda<br>29/06/2015; Tomás; ordenación<br>El año es opcional (15/03). Tipos: cumple, boda, ordenación u otro.</p>
+    <p class="pista" style="margin:0">Ejemplos:<br>15/03/2018; Pablo; cumple; hijo de Javi<br>22/06/2001; Javi y Ana; boda<br>29/06/2015; Tomás; ordenación<br>El año es opcional (15/03). Tipos: cumple, boda, ordenación, fallecimiento u otro.</p>
     <label class="campo">Lista<textarea id="nm-txt" style="min-height:160px" placeholder="15/03/2018; Pablo; cumple"></textarea></label>
     <p class="pista" id="nm-prev"></p>
     <div class="pie"><button class="btn" data-act="cerrar">Cancelar</button><button class="btn prim" data-act="nm-imp">Importar</button></div>`,
