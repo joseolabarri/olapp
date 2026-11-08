@@ -20,7 +20,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Young+Serif&display=swap" rel="stylesheet">
 <style>
 :root{
   --azul:#0F7A66; --sobre-azul:#fff; --azafran:#F2B33D; --tomate:#D64933;
@@ -190,6 +190,41 @@ body.modo-q .marca{font-size:22px}
 .prow:first-child{border-top:0}
 .panel{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:4px 14px 16px}
 
+/* ═══ Nomeolvides: azul de la flor, centro amarillo, tipografía con serifa ═══ */
+.t-nm{background:linear-gradient(135deg,#7FB3E3 0%,#3D7CC9 100%);grid-column:1/-1;min-height:120px}
+.t-nm .ti-t{font-family:"Young Serif",Georgia,serif;font-weight:400}
+.ti-ic svg{width:40px;height:40px;display:block}
+body.modo-nm{--azul:#2F6FB5;--sobre-azul:#fff;--fondo:#EEF4FC;--papel:#FFFFFF;--tinta:#1A2B45;--suave:#5B6E8C;--linea:#D3E1F2;
+  --nm-petalo:#6FA8DC;--nm-petalo2:#9CC3EA;--nm-centro:#F5C93E;--nm-hoy:#FFF7DA}
+@media (prefers-color-scheme:dark){ body.modo-nm{--azul:#8DB8EA;--sobre-azul:#0E1726;--fondo:#0E1726;--papel:#16233A;--tinta:#E7EEF8;--suave:#9DB0CC;--linea:#26395A;--nm-hoy:#2E2A17} }
+body.modo-nm .marca{font-family:"Young Serif",Georgia,serif;font-weight:400;letter-spacing:0}
+body.modo-nm .azulejo{background-color:#6FA8DC;
+  background-image:radial-gradient(circle at 50% 50%,#F5C93E 0 2.5px,transparent 3px),radial-gradient(circle at 50% 50%,#fff 0 5.5px,transparent 6px);background-size:18px 18px}
+.nm-hero{display:flex;align-items:center;gap:14px;margin:4px 0 16px}
+.nm-hero svg{width:64px;height:64px;flex:none}
+.nm-hero h2{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:30px;margin:0;color:var(--azul);line-height:1.05}
+.nm-hero p{margin:4px 0 0;color:var(--suave)}
+.nm-hoy{background:var(--nm-hoy);border:1.5px solid var(--nm-centro);border-radius:18px;padding:14px 16px;margin-bottom:16px}
+.nm-hoy h3{margin:0 0 6px;font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:19px}
+.nm-hoy p{margin:4px 0;font-size:17px;font-weight:600}
+.nm-buscar{margin-bottom:14px}
+.nm-acciones{display:flex;gap:8px;margin-bottom:16px}
+.nm-acciones .btn{flex:1}
+.nm-grupo{margin-bottom:18px}
+.nm-grupo h3{font-family:"Young Serif",Georgia,serif;font-weight:400;font-size:19px;color:var(--azul);margin:0 0 8px}
+.nm-lista{background:var(--papel);border:1px solid var(--linea);border-radius:16px;overflow:hidden}
+.nm-item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border:0;border-top:1px solid var(--linea);background:none;text-align:left;color:var(--tinta);font:inherit}
+.nm-item:first-child{border-top:0}
+.nm-item:not(:disabled){cursor:pointer}
+.nm-fecha{flex:none;width:48px;height:48px;border-radius:50%;background:var(--nm-petalo2);color:#14335C;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.nm-fecha b{font-size:18px}
+.nm-fecha small{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.nm-item.hoy .nm-fecha{background:var(--nm-centro);color:#4A3600}
+.nm-txt{min-width:0}
+.nm-txt span{display:block;font-weight:600}
+.nm-txt small{display:block;color:var(--suave);font-size:13px}
+.nm-vacio{color:var(--suave);padding:14px}
+
 /* Configuración de avisos */
 .av-card{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:14px;margin-bottom:12px}
 .av-card.off{opacity:.6}
@@ -255,7 +290,7 @@ const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto"
 const MES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
 /* ---------- Estado ---------- */
-const S = { uid:null, yo:null, esAdmin:false, miembros:[], lunes:null, dias:{}, vista:"hub", diaSel:null, esJugador:false, nombreQ:"", q:null,
+const S = { nm:[], nmQ:"", unsubNm:null, uid:null, yo:null, esAdmin:false, miembros:[], lunes:null, dias:{}, vista:"hub", diaSel:null, esJugador:false, nombreQ:"", q:null,
             unsubDias:null, unsubMiem:null, parts:null, nu:{ u:"", n:"", id:"", t:"casa" } };
 
 /* ---------- Utilidades ---------- */
@@ -303,6 +338,7 @@ onAuthStateChanged(auth, async u => {
   S.vista = "hub";
   pintarApp();
   escucharMiembros();
+  escucharNomeolvides();
   if (S.yo) escucharSemana();
   if (S.esJugador) cargarEstadoQuiniela();
   irAlEnlace();
@@ -321,7 +357,8 @@ const AV_DEF = {
   qAntes:      { activo:true, minutos:60, titulo:"Jornada {jornada}: queda poco", texto:"Todavía no has hecho tu quiniela. Cierra a las {hora}." },
   qCerrada:    { activo:true, titulo:"Jornada {jornada} cerrada", texto:"Ya se pueden ver los pronósticos de todos." },
   qResultados: { activo:true, titulo:"Jornada {jornada}: resultados completos", texto:"Ya están los 14 resultados y el pleno al 15. Mira cómo ha quedado la jornada." },
-  qTablas:     { activo:true, titulo:"Tablas actualizadas", texto:"Se han actualizado los resultados reales de las tablas. Mira cómo vas." }
+  qTablas:     { activo:true, titulo:"Tablas actualizadas", texto:"Se han actualizado los resultados reales de las tablas. Mira cómo vas." },
+  nomeolvides: { activo:true, hora:"06:00", titulo:"🌼 Nomeolvides", texto:"{efemeride}" }
 };
 const AV_INFO = [
   ["La Planilla", [
@@ -335,7 +372,9 @@ const AV_INFO = [
     ["qAntes", "Antes del cierre", "Solo a quien juega y no la ha hecho.", ["jornada", "hora"]],
     ["qCerrada", "Jornada cerrada", "A todos, cuando se ven los pronósticos.", ["jornada"]],
     ["qResultados", "Resultados completos", "A todos, con los 14 resultados y el pleno.", ["jornada"]],
-    ["qTablas", "Tablas actualizadas", "A todos (como mucho uno por hora).", []]]]
+    ["qTablas", "Tablas actualizadas", "A todos (como mucho uno por hora).", []]]],
+  ["Nomeolvides", [
+    ["nomeolvides", "Fechas del día", "A toda la familia, un aviso por cada cumpleaños o aniversario del día.", ["efemeride"]]]]
 ];
 const HORAS = []; for (let h = 0; h < 24; h++) for (const m of [0, 15, 30, 45]) HORAS.push(`${pad(h)}:${pad(m)}`);
 const DIAS_SEM = [[1,"Lunes"],[2,"Martes"],[3,"Miércoles"],[4,"Jueves"],[5,"Viernes"],[6,"Sábado"],[0,"Domingo"]];
@@ -378,6 +417,161 @@ async function guardarAvisos() {
   catch (e) { toast("No se pudo guardar (" + e.code + ")."); }
 }
 
+/* ═══════════════ NOMEOLVIDES ═══════════════ */
+const NM_TIPOS = { cumple:{ic:"🎂", t:"Cumpleaños"}, boda:{ic:"💍", t:"Aniversario de boda"},
+                   ordenacion:{ic:"✝️", t:"Aniversario de ordenación"}, otro:{ic:"⭐", t:"Otra fecha"} };
+function flor(color1 = "#6FA8DC", color2 = "#9CC3EA") {
+  const p = [0, 72, 144, 216, 288].map((a, i) => { const r = (a - 90) * Math.PI / 180;
+    return `<circle cx="${(50 + 23 * Math.cos(r)).toFixed(1)}" cy="${(50 + 23 * Math.sin(r)).toFixed(1)}" r="20" fill="${i % 2 ? color2 : color1}"/>`; }).join("");
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${p}<circle cx="50" cy="50" r="13" fill="#fff"/><circle cx="50" cy="50" r="8" fill="#F5C93E"/></svg>`;
+}
+const bisiesto = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+function nmProxima(e) {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const en = y => new Date(y, e.mes - 1, (e.mes === 2 && e.dia === 29 && !bisiesto(y)) ? 28 : e.dia);
+  let y = hoy.getFullYear(), f = en(y); if (f < hoy) f = en(++y);
+  return { fecha: f, dias: Math.round((f - hoy) / 864e5), anos: e.anio ? y - e.anio : null };
+}
+function nmFrase(e, anos) {
+  const n = anos > 0 ? anos : null;
+  switch (e.tipo) {
+    case "cumple": return { t: `Cumple ${e.nombre}`, s: n ? `cumple ${n} año${n > 1 ? "s" : ""}` : "cumpleaños" };
+    case "boda": return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""} de casados` : "aniversario de boda" };
+    case "ordenacion": return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""} de ordenación` : "aniversario de ordenación" };
+    default: return { t: e.nombre, s: n ? `${n} año${n > 1 ? "s" : ""}` : (e.nota || "") };
+  }
+}
+const sinTildes = x => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function nmOrdenadas() { return S.nm.map(e => ({ e, p: nmProxima(e) })).sort((a, b) => a.p.dias - b.p.dias || a.e.nombre.localeCompare(b.e.nombre)); }
+
+function escucharNomeolvides() {
+  S.unsubNm = onSnapshot(collection(db, "nomeolvides"), snap => {
+    S.nm = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(e => e.dia && e.mes && e.nombre);
+    render();
+  }, () => {});
+}
+
+function estadoNm() {
+  const l = nmOrdenadas(); if (!l.length) return "Cumpleaños y aniversarios de la familia";
+  const hoy = l.filter(x => x.p.dias === 0);
+  if (hoy.length) { const f = nmFrase(hoy[0].e, hoy[0].p.anos); return `Hoy: ${NM_TIPOS[hoy[0].e.tipo]?.ic || "⭐"} ${f.t}${hoy.length > 1 ? ` y ${hoy.length - 1} más` : ""}`; }
+  const x = l[0], f = nmFrase(x.e, x.p.anos);
+  const cuando = x.p.dias === 1 ? "Mañana" : `El ${x.p.fecha.getDate()} de ${MESES[x.p.fecha.getMonth()]}`;
+  return `${cuando}: ${NM_TIPOS[x.e.tipo]?.ic || "⭐"} ${f.t}`;
+}
+
+function nmItem(x) {
+  const f = nmFrase(x.e, x.p.anos), ic = NM_TIPOS[x.e.tipo]?.ic || "⭐";
+  const cuando = x.p.dias === 0 ? "¡hoy!" : x.p.dias === 1 ? "mañana" : `en ${x.p.dias} días`;
+  return `<button class="nm-item${x.p.dias === 0 ? " hoy" : ""}" data-act="nm-editar" data-id="${x.e.id}" ${S.esAdmin ? "" : "disabled"}>
+    <span class="nm-fecha"><b>${x.e.dia}</b><small>${MES_C[x.e.mes - 1]}</small></span>
+    <span class="nm-txt"><span>${ic} ${esc(f.t)}</span><small>${esc([f.s, cuando, x.e.tipo !== "otro" ? x.e.nota : ""].filter(Boolean).join(" · "))}</small></span></button>`;
+}
+
+function nmListaHTML() {
+  const q = sinTildes(S.nmQ);
+  const l = nmOrdenadas().filter(x => !q || sinTildes(`${x.e.nombre} ${x.e.nota || ""} ${NM_TIPOS[x.e.tipo]?.t || ""}`).includes(q));
+  if (!S.nm.length) return `<p class="nm-vacio">Todavía no hay fechas.${S.esAdmin ? " Añádelas con los botones de arriba." : ""}</p>`;
+  if (!l.length) return `<p class="nm-vacio">No hay ninguna fecha con «${esc(S.nmQ)}».</p>`;
+  const grupos = []; const semana = l.filter(x => x.p.dias <= 7);
+  if (semana.length) grupos.push(["Esta semana", semana]);
+  const resto = l.filter(x => x.p.dias > 7), porMes = new Map();
+  resto.forEach(x => { const k = `${x.p.fecha.getFullYear()}-${x.p.fecha.getMonth()}`; if (!porMes.has(k)) porMes.set(k, []); porMes.get(k).push(x); });
+  porMes.forEach((xs, k) => { const m = Number(k.split("-")[1]); grupos.push([MESES[m][0].toUpperCase() + MESES[m].slice(1), xs]); });
+  return grupos.map(([t, xs]) => `<section class="nm-grupo"><h3>${t}</h3><div class="nm-lista">${xs.map(nmItem).join("")}</div></section>`).join("");
+}
+
+function nmHoyHTML() {
+  const hoy = nmOrdenadas().filter(x => x.p.dias === 0);
+  if (!hoy.length) return "";
+  return `<div class="nm-hoy"><h3>Hoy no se nos olvida</h3>${hoy.map(x => { const f = nmFrase(x.e, x.p.anos);
+    return `<p>${NM_TIPOS[x.e.tipo]?.ic || "⭐"} ${esc(f.t)}${f.s && x.e.tipo !== "otro" ? ` · ${esc(f.s)}` : ""}</p>`; }).join("")}</div>`;
+}
+
+function vNm() {
+  return `<div class="nm-hero">${flor()}<div><h2>Nomeolvides</h2><p>Las fechas de la familia que no se nos pueden pasar.</p></div></div>
+    <div id="nm-hoy">${nmHoyHTML()}</div>
+    <input class="nm-buscar" id="nm-q" type="search" placeholder="Buscar un nombre…" value="${esc(S.nmQ)}" autocomplete="off">
+    ${S.esAdmin ? `<div class="nm-acciones"><button class="btn prim" data-act="nm-nueva">+ Añadir fecha</button><button class="btn" data-act="nm-importar">Pegar una lista</button></div>` : ""}
+    <div id="nm-lista">${nmListaHTML()}</div>`;
+}
+
+function nmEditar(id) {
+  if (!S.esAdmin) return;
+  const e = id ? S.nm.find(x => x.id === id) : { nombre: "", tipo: "cumple", dia: "", mes: new Date().getMonth() + 1, anio: "", nota: "" };
+  if (!e) return;
+  abrirSheet(`<h3>${id ? "Editar fecha" : "Nueva fecha"}</h3><p class="sub">Nomeolvides</p>
+    <label class="campo">Tipo<select id="nm-t">${Object.entries(NM_TIPOS).map(([k, v]) => `<option value="${k}"${e.tipo === k ? " selected" : ""}>${v.ic} ${v.t}</option>`).join("")}</select></label>
+    <label class="campo">Nombre<input id="nm-n" maxlength="60" value="${esc(e.nombre)}" placeholder="Pablo · Javi y Ana · Tomás"></label>
+    <div class="av-fila">
+      <label class="campo">Día<input id="nm-d" type="number" min="1" max="31" inputmode="numeric" value="${e.dia || ""}"></label>
+      <label class="campo">Mes<select id="nm-m">${MESES.map((m, i) => `<option value="${i + 1}"${Number(e.mes) === i + 1 ? " selected" : ""}>${m}</option>`).join("")}</select></label>
+      <label class="campo">Año<input id="nm-a" type="number" min="1900" max="2100" inputmode="numeric" value="${e.anio || ""}" placeholder="opcional"></label>
+    </div>
+    <label class="campo">Nota (opcional)<input id="nm-o" maxlength="80" value="${esc(e.nota || "")}" placeholder="hijo de Javi"></label>
+    <div class="pie">${id ? `<button class="btn quitar" data-act="nm-borrar">Borrar</button>` : ""}<button class="btn" data-act="cerrar">Cancelar</button><button class="btn prim" data-act="nm-ok">Guardar</button></div>`,
+  async (ev, v) => {
+    const a = ev.target.closest("[data-act]")?.dataset.act;
+    if (a === "nm-borrar") {
+      if (!confirm(`¿Borrar «${e.nombre}»?`)) return;
+      cerrarSheet(); try { await deleteDoc(doc(db, "nomeolvides", id)); toast("Fecha borrada."); } catch (x) { toast("No se pudo borrar (" + x.code + ")."); }
+      return;
+    }
+    if (a !== "nm-ok") return;
+    const dato = { tipo: v.querySelector("#nm-t").value, nombre: v.querySelector("#nm-n").value.trim(),
+      dia: Number(v.querySelector("#nm-d").value), mes: Number(v.querySelector("#nm-m").value),
+      anio: Number(v.querySelector("#nm-a").value) || null, nota: v.querySelector("#nm-o").value.trim() };
+    if (!dato.nombre) { toast("Escribe un nombre."); return; }
+    if (!(dato.dia >= 1 && dato.dia <= 31)) { toast("El día no es válido."); return; }
+    const max = new Date(2024, dato.mes, 0).getDate();
+    if (dato.dia > max) { toast(`${MESES[dato.mes - 1]} no tiene ${dato.dia} días.`); return; }
+    cerrarSheet();
+    try { await setDoc(id ? doc(db, "nomeolvides", id) : doc(collection(db, "nomeolvides")), dato); toast("Guardado."); }
+    catch (x) { toast("No se pudo guardar (" + x.code + ")."); }
+  });
+}
+
+function nmTipoDe(t) {
+  t = sinTildes(t);
+  if (!t || t.startsWith("cum")) return "cumple";
+  if (t.startsWith("bod") || t.startsWith("matr") || t.startsWith("cas")) return "boda";
+  if (t.startsWith("ord")) return "ordenacion";
+  return "otro";
+}
+function nmParsear(texto) {
+  const ok = [], mal = [];
+  texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean).forEach(l => {
+    const c = l.split(/\t|;/).map(x => x.trim());
+    const m = (c[0] || "").match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?$/);
+    if (!m || !c[1]) { mal.push(l); return; }
+    let anio = m[3] ? Number(m[3]) : null; if (anio && anio < 100) anio += anio > 30 ? 1900 : 2000;
+    const dia = Number(m[1]), mes = Number(m[2]);
+    if (mes < 1 || mes > 12 || dia < 1 || dia > new Date(2024, mes, 0).getDate()) { mal.push(l); return; }
+    ok.push({ dia, mes, anio, nombre: c[1], tipo: nmTipoDe(c[2]), nota: c[3] || "" });
+  });
+  return { ok, mal };
+}
+function nmImportar() {
+  abrirSheet(`<h3>Pegar una lista</h3>
+    <p class="sub">Una fecha por línea: <b>fecha; nombre; tipo</b> (y si quieres, <b>; nota</b>). Sirve también copiar y pegar desde Excel con esas columnas.</p>
+    <p class="pista" style="margin:0">Ejemplos:<br>15/03/2018; Pablo; cumple; hijo de Javi<br>22/06/2001; Javi y Ana; boda<br>29/06/2015; Tomás; ordenación<br>El año es opcional (15/03). Tipos: cumple, boda, ordenación u otro.</p>
+    <label class="campo">Lista<textarea id="nm-txt" style="min-height:160px" placeholder="15/03/2018; Pablo; cumple"></textarea></label>
+    <p class="pista" id="nm-prev"></p>
+    <div class="pie"><button class="btn" data-act="cerrar">Cancelar</button><button class="btn prim" data-act="nm-imp">Importar</button></div>`,
+  async (ev, v) => {
+    if (!ev.target.closest('[data-act="nm-imp"]')) return;
+    const { ok, mal } = nmParsear(v.querySelector("#nm-txt").value);
+    if (mal.length) { v.querySelector("#nm-prev").innerHTML = `No entiendo ${mal.length === 1 ? "esta línea" : "estas líneas"}:<br>${mal.map(esc).join("<br>")}`; return; }
+    if (!ok.length) { toast("La lista está vacía."); return; }
+    try {
+      for (let i = 0; i < ok.length; i += 400) {
+        const b = writeBatch(db); ok.slice(i, i + 400).forEach(d => b.set(doc(collection(db, "nomeolvides")), d)); await b.commit();
+      }
+      cerrarSheet(); toast(`Importadas ${ok.length} fechas.`);
+    } catch (x) { toast("No se pudo importar (" + x.code + ")."); }
+  });
+}
+
 const ICONOS = { javi:"javier", dani:"daniel", leti:"leticia", andres:"andres", tomas:"tomas",
                  luis:"luis", jorge:"jorge", jose:"jose", cristina:"cristina", fernando:"fernando" };
 function ponerIcono(email) {
@@ -394,6 +588,7 @@ function irAlEnlace() {
   if (!h || !S.uid || !$("#view")) return;
   if (h === "quiniela" && S.esJugador) setVista("quiniela");
   else if ((h === "casa" || h === "mia") && S.yo) setVista(h);
+  else if (h === "nm") setVista("nm");
   history.replaceState(null, "", location.pathname);
 }
 
@@ -442,8 +637,8 @@ function bloqueAvisos() {
 }
 
 function limpiar() {
-  S.unsubDias?.(); S.unsubMiem?.();
-  Object.assign(S, { uid:null, yo:null, esAdmin:false, miembros:[], dias:{}, unsubDias:null, unsubMiem:null, parts:null, diaSel:null, esJugador:false, nombreQ:"", q:null, vista:"hub", avisos:null, token:null });
+  S.unsubDias?.(); S.unsubMiem?.(); S.unsubNm?.();
+  Object.assign(S, { uid:null, yo:null, esAdmin:false, miembros:[], dias:{}, unsubDias:null, unsubMiem:null, parts:null, diaSel:null, esJugador:false, nombreQ:"", q:null, vista:"hub", avisos:null, token:null, nm:[], nmQ:"", unsubNm:null });
   cerrarSheet();
 }
 
@@ -533,14 +728,20 @@ function render() {
   $("#yo-n").textContent = S.yo?.nombre || S.nombreQ || "";
   $("#yo").hidden = v !== "hub";
   $("#volver").hidden = v === "hub";
-  $("#titulo").textContent = { hub:"OlApp", admin:"Ajustes", quiniela:"La Quiniela", avisos:"Avisos" }[v] || "La Planilla";
+  $("#titulo").textContent = { hub:"OlApp", admin:"Ajustes", quiniela:"La Quiniela", avisos:"Avisos", nm:"Nomeolvides" }[v] || "La Planilla";
   $("#seg").hidden = !enPlanilla || !S.yo;
   document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
   document.body.classList.toggle("modo-q", q);
+  document.body.classList.toggle("modo-nm", v === "nm");
   $("#qwrap").hidden = !q; view.hidden = q;
   if (q) { const f = $("#qframe"); if (!f.dataset.cargado) { f.src = QUINIELA_URL; f.dataset.cargado = "1"; } return; }
-  if (v !== "avisos") view.dataset.pintado = "";
-  if (v === "avisos") { if (!view.dataset.pintado) { view.innerHTML = vAvisos(); view.dataset.pintado = "1"; } return; }
+  if (v !== "avisos" && v !== "nm") view.dataset.pintado = "";
+  if (v === "avisos") { if (view.dataset.pintado !== "avisos") { view.innerHTML = vAvisos(); view.dataset.pintado = "avisos"; } return; }
+  if (v === "nm") {   // sin repintar el buscador mientras se escribe
+    if (view.dataset.pintado !== "nm") { view.innerHTML = vNm(); view.dataset.pintado = "nm"; }
+    else { $("#nm-hoy").innerHTML = nmHoyHTML(); $("#nm-lista").innerHTML = nmListaHTML(); }
+    return;
+  }
   if (v === "hub") view.innerHTML = vHub();
   else if (v === "admin") view.innerHTML = vAdmin();
   else if (!S.yo) view.innerHTML = `<div class="aviso mal"><p>Añádete a la familia en Ajustes para ver la planilla.</p></div>`;
@@ -588,9 +789,10 @@ function vHub() {
   const nombre = S.yo?.nombre || S.nombreQ || "";
   const tiles = [];
   if (S.yo) tiles.push(`<button class="tile t-plan" data-v="mia"><span class="ti-ic">🍽️</span><span class="ti-t">La Planilla</span><span class="ti-s">${esc(estadoPlanilla())}</span></button>`);
+  tiles.push(`<button class="tile t-nm" data-v="nm"><span class="ti-ic">${flor("#DCEBFA", "#FFFFFF")}</span><span class="ti-t">Nomeolvides</span><span class="ti-s">${esc(estadoNm())}</span></button>`);
   if (S.esJugador) tiles.push(`<button class="tile t-quin" data-v="quiniela"><span class="ti-ic">⚽</span><span class="ti-t">La Quiniela</span><span class="ti-s">${esc(estadoQuiniela())}</span></button>`);
   return bannerInstalar() + `<p class="saludo">${nombre ? `Hola, ${esc(nombre)}` : "Hola"}</p>
-    <div class="tiles">${tiles.join("")}</div>
+    <div class="tiles">${[...tiles.filter(t => !t.includes("t-nm")), ...tiles.filter(t => t.includes("t-nm"))].join("")}</div>
     ${bloqueAvisos()}
     <p style="margin:4px 0 12px"><button class="lnk" data-act="clave">🔑 Cambiar mi contraseña</button></p>
     ${S.esAdmin ? `<button class="btn ancho" data-v="admin">⚙️ Ajustes de OlApp</button>` : ""}`;
@@ -935,6 +1137,9 @@ document.addEventListener("click", ev => {
     case "crear": crearUsuario(); break;
     case "clave": abrirClave(); break;
     case "cfg-avisos": abrirAvisos(); break;
+    case "nm-nueva": nmEditar(null); break;
+    case "nm-editar": nmEditar(d.id); break;
+    case "nm-importar": nmImportar(); break;
     case "av-guardar": guardarAvisos(); break;
     case "av-def": if (confirm("¿Volver a los textos y horas originales? Tendrás que pulsar Guardar.")) {
       S.cfg = JSON.parse(JSON.stringify(AV_DEF)); $("#view").dataset.pintado = ""; render(); } break;
@@ -949,6 +1154,7 @@ function campoAviso(t) {
   return true;
 }
 document.addEventListener("input", ev => {
+  if (ev.target.id === "nm-q") { S.nmQ = ev.target.value; $("#nm-lista").innerHTML = nmListaHTML(); return; }
   if (campoAviso(ev.target)) return;
   const k = { "nu-u":"u", "nu-n":"n", "nu-id":"id", "nu-t":"t" }[ev.target.id];
   if (k) S.nu[k] = ev.target.value;
